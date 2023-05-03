@@ -1,0 +1,27 @@
+{
+  "name": "scrimtime-wss",
+  "version": "0.0.1",
+  "description": "Simple server to parse Scrimtime CSV events to a WSS in JSON format",
+  "main": "index.js",
+  "scripts": {
+    "start": "yarn build && node dist/parser.js",
+    "build": "tsc",
+    "dev": "nodemon --watch ./src/**/*.ts --exec ts-node src/parser.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "underscore": "^1.13.6",
+    "ws": "7.5.9"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/node": "^18.16.3",
+    "@types/underscore": "^1.11.4",
+    "@types/ws": "7.4.7",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
