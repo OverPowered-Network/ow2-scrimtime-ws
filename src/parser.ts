@@ -166,149 +166,153 @@ function scrimCsvToArray(str: string, delimiter = ",") {
   return arr;
 }
 
-let PLAYERS = {};
-let DTO = {};
+const createDTO = (events: any) => {
+  const PLAYER_STATS = {};
+  const PLAYERS = {};
+  const DTO = {};
 
-const createDTO = (event: any) => {
-  // console.log(event);
-  if (event[OW_EVENT_KEYS.H_SPN]) {
-    if (event?.[OW_EVENT_KEYS.H_SPN]?.player?.playerName) {
-      console.log(
-        "CREATING PLAYER DTO",
-        event?.[OW_EVENT_KEYS.H_SPN]?.player?.playerName
-      );
+  for (const event of events) {
+    // console.log(event);
+    if (event[OW_EVENT_KEYS.H_SPN]) {
+      if (event?.[OW_EVENT_KEYS.H_SPN]?.player?.playerName) {
+        // console.log(
+        //   "CREATING PLAYER DTO",
+        //   event?.[OW_EVENT_KEYS.H_SPN]?.player?.playerName
+        // );
 
-      PLAYERS[event?.[OW_EVENT_KEYS.H_SPN]?.player?.playerName] = {
-        ...event[OW_EVENT_KEYS.H_SPN].player,
-      };
+        PLAYERS[event?.[OW_EVENT_KEYS.H_SPN]?.player?.playerName] = {
+          ...event[OW_EVENT_KEYS.H_SPN].player,
+        };
 
-      DTO["players"] = { ...PLAYERS };
+        DTO["players"] = { ...PLAYERS };
+      }
     }
-  }
 
-  if (event[OW_EVENT_KEYS.H_SWP]) {
-    if (event?.[OW_EVENT_KEYS.H_SWP]?.player?.playerName) {
-      console.log("SWAPPING PLAYER DTO", event?.[OW_EVENT_KEYS.H_SWP]);
+    if (event[OW_EVENT_KEYS.H_SWP]) {
+      if (event?.[OW_EVENT_KEYS.H_SWP]?.player?.playerName) {
+        // console.log("SWAPPING PLAYER DTO", event?.[OW_EVENT_KEYS.H_SWP]);
 
-      PLAYERS[event?.[OW_EVENT_KEYS.H_SWP]?.player?.playerName] = {
-        ...PLAYERS[event?.[OW_EVENT_KEYS.H_SWP]?.player?.playerName],
-        ...event[OW_EVENT_KEYS.H_SWP].player,
-      };
+        PLAYERS[event?.[OW_EVENT_KEYS.H_SWP]?.player?.playerName] = {
+          ...PLAYERS[event?.[OW_EVENT_KEYS.H_SWP]?.player?.playerName],
+          ...event[OW_EVENT_KEYS.H_SWP].player,
+        };
 
-      DTO["players"] = { ...PLAYERS };
+        DTO["players"] = { ...PLAYERS };
+      }
     }
-  }
 
-  if (event[OW_EVENT_KEYS.K]) {
-    console.log(event[OW_EVENT_KEYS.K].recievingPlayer);
-    if (event?.[OW_EVENT_KEYS.K]?.player?.playerName) {
-      if (PLAYERS[event?.[OW_EVENT_KEYS.K]?.player?.playerName]) {
-        console.log(
-          "ADDING KILL VALUE TO PLAYER",
-          event?.[OW_EVENT_KEYS.K]?.player?.playerName
-        );
-        if (PLAYERS[event?.[OW_EVENT_KEYS.K]?.player?.playerName].kills) {
-          console.log("INCREMENTING KILL VALUE TO PLAYER");
-          PLAYERS[event?.[OW_EVENT_KEYS.K]?.player?.playerName].kills += 1;
-        } else {
-          console.log("INITALIZING KILL VALUE TO PLAYER");
-          PLAYERS[event?.[OW_EVENT_KEYS.K]?.player?.playerName].kills = 1;
-        }
-
-        // Log deaths of other player
-        if (PLAYERS[event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName]) {
-          if (
-            PLAYERS[event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName]
-              ?.deaths
-          ) {
-            console.log("INCREMENTING DEATH VALUE TO PLAYER");
-            PLAYERS[
-              event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName
-            ].deaths += 1;
+    if (event[OW_EVENT_KEYS.K]) {
+      console.log(event[OW_EVENT_KEYS.K].recievingPlayer);
+      if (event?.[OW_EVENT_KEYS.K]?.player?.playerName) {
+        if (PLAYERS[event?.[OW_EVENT_KEYS.K]?.player?.playerName]) {
+          // console.log(
+          //   "ADDING KILL VALUE TO PLAYER",
+          //   event?.[OW_EVENT_KEYS.K]?.player?.playerName
+          // );
+          if (PLAYERS[event?.[OW_EVENT_KEYS.K]?.player?.playerName].kills) {
+            // console.log("INCREMENTING KILL VALUE TO PLAYER");
+            PLAYERS[event?.[OW_EVENT_KEYS.K]?.player?.playerName].kills += 1;
           } else {
-            console.log("INITALIZING DEATH VALUE TO PLAYER");
-            PLAYERS[
-              event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName
-            ].deaths = 1;
+            // console.log("INITALIZING KILL VALUE TO PLAYER");
+            PLAYERS[event?.[OW_EVENT_KEYS.K]?.player?.playerName].kills = 1;
           }
-        } else {
-          console.log("INITALIZING DEATH VALUE TO PLAYER");
-          PLAYERS[event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName] = {
-            ...event?.[OW_EVENT_KEYS.K]?.recievingPlayer,
-            deaths: 1,
-          };
-        }
 
-        DTO["players"] = PLAYERS;
+          // Log deaths of other player
+          if (PLAYERS[event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName]) {
+            if (
+              PLAYERS[event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName]
+                ?.deaths
+            ) {
+              // console.log("INCREMENTING DEATH VALUE TO PLAYER");
+              PLAYERS[
+                event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName
+              ].deaths += 1;
+            } else {
+              // console.log("INITALIZING DEATH VALUE TO PLAYER");
+              PLAYERS[
+                event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName
+              ].deaths = 1;
+            }
+          } else {
+            // console.log("INITALIZING DEATH VALUE TO PLAYER");
+            PLAYERS[event?.[OW_EVENT_KEYS.K]?.recievingPlayer?.playerName] = {
+              ...event?.[OW_EVENT_KEYS.K]?.recievingPlayer,
+              deaths: 1,
+            };
+          }
+
+          DTO["players"] = PLAYERS;
+        }
       }
     }
-  }
 
-  if (event[OW_EVENT_KEYS.OFF_ASS]) {
-    if (event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName) {
-      if (PLAYERS[event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName]) {
-        console.log(
-          "ADDING OFF_ASSISTS VALUE TO PLAYER",
-          event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName
-        );
-        if (
-          PLAYERS[event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName]
-            .off_assists
-        ) {
-          console.log("INCREMENTING OFF_ASSISTS VALUE TO PLAYER");
-          PLAYERS[
-            event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName
-          ].off_assists += 1;
-        } else {
-          console.log("INITALIZING OFF_ASSISTS VALUE TO PLAYER");
-          PLAYERS[
-            event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName
-          ].off_assists = 1;
+    if (event[OW_EVENT_KEYS.OFF_ASS]) {
+      if (event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName) {
+        if (PLAYERS[event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName]) {
+          // console.log(
+          //   "ADDING OFF_ASSISTS VALUE TO PLAYER",
+          //   event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName
+          // );
+          if (
+            PLAYERS[event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName]
+              .off_assists
+          ) {
+            // console.log("INCREMENTING OFF_ASSISTS VALUE TO PLAYER");
+            PLAYERS[
+              event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName
+            ].off_assists += 1;
+          } else {
+            // console.log("INITALIZING OFF_ASSISTS VALUE TO PLAYER");
+            PLAYERS[
+              event?.[OW_EVENT_KEYS.OFF_ASS]?.player?.playerName
+            ].off_assists = 1;
+          }
+
+          DTO["players"] = PLAYERS;
         }
-
-        DTO["players"] = PLAYERS;
       }
     }
-  }
 
-  if (event[OW_EVENT_KEYS.DEF_ASS]) {
-    if (event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName) {
-      if (PLAYERS[event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName]) {
-        console.log(
-          "ADDING DEF_ASSISTS VALUE TO PLAYER",
-          event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName
-        );
-        if (
-          PLAYERS[event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName]
-            .def_assists
-        ) {
-          console.log("INCREMENTING DEF_ASSISTS VALUE TO PLAYER");
-          PLAYERS[
-            event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName
-          ].def_assists += 1;
-        } else {
-          console.log("INITALIZING DEF_ASSISTS VALUE TO PLAYER");
-          PLAYERS[
-            event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName
-          ].def_assists = 1;
+    if (event[OW_EVENT_KEYS.DEF_ASS]) {
+      if (event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName) {
+        if (PLAYERS[event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName]) {
+          // console.log(
+          //   "ADDING DEF_ASSISTS VALUE TO PLAYER",
+          //   event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName
+          // );
+          if (
+            PLAYERS[event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName]
+              .def_assists
+          ) {
+            // console.log("INCREMENTING DEF_ASSISTS VALUE TO PLAYER");
+            PLAYERS[
+              event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName
+            ].def_assists += 1;
+          } else {
+            // console.log("INITALIZING DEF_ASSISTS VALUE TO PLAYER");
+            PLAYERS[
+              event?.[OW_EVENT_KEYS.DEF_ASS]?.player?.playerName
+            ].def_assists = 1;
+          }
+
+          DTO["players"] = PLAYERS;
         }
-
-        DTO["players"] = PLAYERS;
       }
     }
+
+    // if (event[OW_EVENT_KEYS.P_STAT]) {
+    // PLAYER_STATS[]
+    // }
   }
 
-  if (event["round_end"]) {
-  }
+  return DTO;
 };
 
-const resetDTO = () => {
-  DTO = {};
-};
+const connectedClients: { socket: WebSocket; key: number }[] = [];
 
 let newestLogFile;
 let watcher: fs.StatWatcher;
-const start = (socket: WebSocket) => {
+const start = () => {
   newestLogFile = getMostRecentFileName(baseDir);
 
   console.log({ newestLogFile });
@@ -335,13 +339,20 @@ const start = (socket: WebSocket) => {
         // console.log(eventArray);
         events = eventArray;
 
-        for (const event of events) {
-          createDTO(event);
-        }
+        // for (const event of eventArray) {
+        //   createDTO(event);
+        // }
+
+        const DTO = createDTO(eventArray);
 
         console.log(DTO);
         console.log("Sending DTO");
-        socket.send(JSON.stringify(DTO));
+        for (const client of connectedClients) {
+          if (client.socket.readyState === 1) {
+            client.socket.send(JSON.stringify(DTO));
+          }
+        }
+        oldEvents = events;
       }
     );
   } else {
@@ -356,6 +367,7 @@ const HTTP_SERVER = createServer();
 const WS_SERVER = new WebSocketServer({ server: HTTP_SERVER });
 
 WS_SERVER.on("connection", (socket, req) => {
+  connectedClients.push({ key: connectedClients.length, socket });
   console.log("Socket client connected", req.headers.origin);
   // start(socket);
 
@@ -367,11 +379,12 @@ WS_SERVER.on("connection", (socket, req) => {
     console.log(data);
     if (data === "START") {
       console.log("Starting logger");
-      start(socket);
+      start();
     }
-    if (data === "STOP") {
-      console.log("Stopping");
+    if (data === "STOP" || data === "stop") {
       if (newestLogFile) {
+        console.log("Stopping");
+        watcher.removeAllListeners();
         fs.unwatchFile(newestLogFile);
       }
     }
