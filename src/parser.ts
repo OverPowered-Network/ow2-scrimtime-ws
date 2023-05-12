@@ -302,6 +302,12 @@ const createDTO = (events: any) => {
       }
     }
 
+    if (event[OW_EVENT_KEYS.RND_E]) {
+      for (const player in Object.keys(PLAYERS)) {
+        PLAYERS[player].hero = null;
+      }
+    }
+
     // if (event[OW_EVENT_KEYS.P_STAT]) {
     // PLAYER_STATS[]
     // }
