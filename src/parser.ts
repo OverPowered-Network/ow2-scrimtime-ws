@@ -181,6 +181,8 @@ const createDTO = (events: any) => {
         // );
 
         PLAYERS[event?.[OW_EVENT_KEYS.H_SPN]?.player?.playerName] = {
+          ...(PLAYERS?.[event?.[OW_EVENT_KEYS.H_SWP]?.player?.playerName] ||
+            {}),
           ...event[OW_EVENT_KEYS.H_SPN].player,
         };
 
