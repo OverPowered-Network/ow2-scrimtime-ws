@@ -25,6 +25,7 @@ const OW_EVENT_KEYS = {
   P_STAT: "player_stat",
   M_REZ: "mercy_rez",
   K: "kill",
+  M_END: "match_end",
 };
 
 // Return only base file name without dir
@@ -150,6 +151,44 @@ function scrimCsvToArray(str: string, delimiter = ",") {
         },
       };
       console.log("SWAP", el);
+
+      return el;
+    }
+
+    if (
+      key === OW_EVENT_KEYS.ULT_CHG ||
+      key === OW_EVENT_KEYS.ULT_ST ||
+      key === OW_EVENT_KEYS.ULT_END
+    ) {
+      const el = {
+        [key]: {
+          timestamp: values[2],
+          team: values[3],
+          player: {
+            hero: values[5],
+            playerName: values[4],
+          },
+        },
+      };
+      return el;
+    }
+
+    if (key === OW_EVENT_KEYS.P_STAT) {
+      const el = {
+        [key]: {
+          round: values[3],
+          hero: values[6],
+          playerName: values[5],
+          eliminations: values[7],
+          final_blows: values[8],
+          deaths: values[9],
+          hero_damage: values[12],
+          healing_dealt: values[13],
+          damage_taken: values[16],
+          damage_mitigated: values[17],
+          weapon_accuracy: values[values.length - 2], // 2nd to last value. can't be bothered to find the index
+        },
+      };
 
       return el;
     }
@@ -302,16 +341,187 @@ const createDTO = (events: any) => {
       }
     }
 
-    if (event[OW_EVENT_KEYS.RND_E]) {
-      for (const player in Object.keys(PLAYERS)) {
-        PLAYERS[player].hero = null;
+    if (event[OW_EVENT_KEYS.ULT_CHG]) {
+      if (event?.[OW_EVENT_KEYS.ULT_CHG]?.player?.playerName) {
+        if (PLAYERS[event?.[OW_EVENT_KEYS.ULT_CHG]?.player?.playerName]) {
+          PLAYERS[
+            event?.[OW_EVENT_KEYS.ULT_CHG]?.player?.playerName
+          ].ultimate_status = "charged";
+          DTO["players"] = PLAYERS;
+        }
       }
     }
 
-    // if (event[OW_EVENT_KEYS.P_STAT]) {
-    // PLAYER_STATS[]
-    // }
+    if (event[OW_EVENT_KEYS.ULT_ST]) {
+      if (event?.[OW_EVENT_KEYS.ULT_ST]?.player?.playerName) {
+        if (PLAYERS[event?.[OW_EVENT_KEYS.ULT_ST]?.player?.playerName]) {
+          PLAYERS[
+            event?.[OW_EVENT_KEYS.ULT_ST]?.player?.playerName
+          ].ultimate_status = "started";
+          DTO["players"] = PLAYERS;
+        }
+      }
+    }
+
+    if (event[OW_EVENT_KEYS.ULT_END]) {
+      if (event?.[OW_EVENT_KEYS.ULT_END]?.player?.playerName) {
+        if (PLAYERS[event?.[OW_EVENT_KEYS.ULT_END]?.player?.playerName]) {
+          PLAYERS[
+            event?.[OW_EVENT_KEYS.ULT_END]?.player?.playerName
+          ].ultimate_status = "ended";
+          DTO["players"] = PLAYERS;
+        }
+      }
+    }
+
+    if (event[OW_EVENT_KEYS.RND_S]) {
+      DTO["round_status"] = "round_start";
+    }
+
+    if (event[OW_EVENT_KEYS.RND_E]) {
+      for (const player in Object.keys(PLAYERS)) {
+        if (PLAYERS[player]) {
+          PLAYERS[player].hero = null;
+          PLAYERS[player].ultimate_status = false;
+        }
+      }
+      DTO["round_status"] = "round_end";
+    }
+
+    if (event[OW_EVENT_KEYS.M_END]) {
+      DTO["round_status"] = "match_end";
+    }
+
+    if (event[OW_EVENT_KEYS.P_STAT]) {
+      const playerName = event?.[OW_EVENT_KEYS.P_STAT]?.playerName;
+      if (playerName) {
+        const newRoundNo = parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.round);
+        const oldRoundNo = PLAYER_STATS[playerName]?.round || 0;
+        const newHero = event?.[OW_EVENT_KEYS.P_STAT]?.hero;
+        const oldHero = PLAYER_STATS[playerName]?.hero || "";
+
+        console.log(newRoundNo, oldRoundNo, newHero, oldHero);
+        if (PLAYER_STATS[playerName]) {
+          if (newRoundNo === oldRoundNo) {
+            if (newHero !== PLAYER_STATS[playerName].hero) {
+              console.log("Adding stats to", playerName, event);
+              PLAYER_STATS[playerName].round = newRoundNo;
+              PLAYER_STATS[playerName].hero = newHero;
+              PLAYER_STATS[playerName].heroList.push(newHero);
+              PLAYER_STATS[playerName].eliminations += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.eliminations
+              );
+
+              PLAYER_STATS[playerName].final_blows += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.final_blows
+              );
+
+              PLAYER_STATS[playerName].deaths += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.deaths
+              );
+
+              PLAYER_STATS[playerName].hero_damage += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.hero_damage
+              );
+
+              PLAYER_STATS[playerName].healing_dealt += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt
+              );
+
+              PLAYER_STATS[playerName].damage_taken += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.damage_taken
+              );
+
+              PLAYER_STATS[playerName].damage_mitigated += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated
+              );
+
+              PLAYER_STATS[playerName].weapon_accuracy += parseFloat(
+                event?.[OW_EVENT_KEYS.P_STAT]?.weapon_accuracy
+              );
+            }
+          } else {
+            PLAYER_STATS[playerName] = {
+              round: parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.round),
+              hero: event?.[OW_EVENT_KEYS.P_STAT]?.hero,
+              heroList: [event?.[OW_EVENT_KEYS.P_STAT]?.hero],
+              eliminations: event?.[OW_EVENT_KEYS.P_STAT]?.eliminations
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.eliminations)
+                : 0,
+
+              final_blows: event?.[OW_EVENT_KEYS.P_STAT]?.final_blows
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.final_blows)
+                : 0,
+
+              deaths: event?.[OW_EVENT_KEYS.P_STAT]?.deaths
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.deaths)
+                : 0,
+
+              hero_damage: event?.[OW_EVENT_KEYS.P_STAT]?.hero_damage
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.hero_damage)
+                : 0,
+
+              healing_dealt: event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt)
+                : 0,
+
+              damage_taken: event?.[OW_EVENT_KEYS.P_STAT]?.damage_taken
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.damage_taken)
+                : 0,
+
+              damage_mitigated: event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated)
+                : 0,
+
+              weapon_accuracy: event?.[OW_EVENT_KEYS.P_STAT]?.weapon_accuracy
+                ? parseFloat(event?.[OW_EVENT_KEYS.P_STAT]?.weapon_accuracy)
+                : 0,
+            };
+          }
+        } else {
+          // console.log("INITALIZING KILL VALUE TO PLAYER");
+          PLAYER_STATS[playerName] = {
+            round: parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.round),
+            hero: event?.[OW_EVENT_KEYS.P_STAT]?.hero,
+            heroList: [event?.[OW_EVENT_KEYS.P_STAT]?.hero],
+            eliminations: event?.[OW_EVENT_KEYS.P_STAT]?.eliminations
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.eliminations)
+              : 0,
+
+            final_blows: event?.[OW_EVENT_KEYS.P_STAT]?.final_blows
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.final_blows)
+              : 0,
+
+            deaths: event?.[OW_EVENT_KEYS.P_STAT]?.deaths
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.deaths)
+              : 0,
+
+            hero_damage: event?.[OW_EVENT_KEYS.P_STAT]?.hero_damage
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.hero_damage)
+              : 0,
+
+            healing_dealt: event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt)
+              : 0,
+
+            damage_taken: event?.[OW_EVENT_KEYS.P_STAT]?.damage_taken
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.damage_taken)
+              : 0,
+
+            damage_mitigated: event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated)
+              : 0,
+
+            weapon_accuracy: event?.[OW_EVENT_KEYS.P_STAT]?.weapon_accuracy
+              ? parseFloat(event?.[OW_EVENT_KEYS.P_STAT]?.weapon_accuracy)
+              : 0,
+          };
+        }
+      }
+    }
   }
+
+  DTO["player_stats"] = PLAYER_STATS;
 
   return DTO;
 };
