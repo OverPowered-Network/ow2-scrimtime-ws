@@ -186,6 +186,8 @@ function scrimCsvToArray(str: string, delimiter = ",") {
           healing_dealt: values[13],
           damage_taken: values[16],
           damage_mitigated: values[17],
+          defensive_assists: values[18],
+          offensive_assists: values[19],
           weapon_accuracy: values[values.length - 2], // 2nd to last value. can't be bothered to find the index
         },
       };
@@ -436,6 +438,14 @@ const createDTO = (events: any) => {
                 event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated
               );
 
+              PLAYER_STATS[playerName].defensive_assists += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.defensive_assists
+              );
+
+              PLAYER_STATS[playerName].offensive_assists += parseInt(
+                event?.[OW_EVENT_KEYS.P_STAT]?.offensive_assists
+              );
+
               PLAYER_STATS[playerName].weapon_accuracy += parseFloat(
                 event?.[OW_EVENT_KEYS.P_STAT]?.weapon_accuracy
               );
@@ -471,6 +481,16 @@ const createDTO = (events: any) => {
 
               damage_mitigated: event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated
                 ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated)
+                : 0,
+
+              defensive_assists: event?.[OW_EVENT_KEYS.P_STAT]
+                ?.defensive_assists
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.defensive_assists)
+                : 0,
+
+              offensive_assists: event?.[OW_EVENT_KEYS.P_STAT]
+                ?.offensive_assists
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.offensive_assists)
                 : 0,
 
               weapon_accuracy: event?.[OW_EVENT_KEYS.P_STAT]?.weapon_accuracy
@@ -510,6 +530,13 @@ const createDTO = (events: any) => {
 
             damage_mitigated: event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated
               ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.damage_mitigated)
+              : 0,
+
+            defensive_assists: event?.[OW_EVENT_KEYS.P_STAT]?.defensive_assists
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.defensive_assists)
+              : 0,
+            offensive_assists: event?.[OW_EVENT_KEYS.P_STAT]?.offensive_assists
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.offensive_assists)
               : 0,
 
             weapon_accuracy: event?.[OW_EVENT_KEYS.P_STAT]?.weapon_accuracy
