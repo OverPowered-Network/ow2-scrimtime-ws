@@ -208,6 +208,7 @@ const scrimCsvToObjArray = (str: string, delimiter = ",") => {
           deaths: values[9],
           hero_damage: values[12],
           healing_dealt: values[13],
+          self_healing: values[15],
           damage_taken: values[16],
           damage_mitigated: values[17],
           defensive_assists: values[18],
@@ -450,6 +451,10 @@ const createDTO = (events: any) => {
               event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt
             );
 
+            PLAYER_STATS[playerName].self_healing += parseInt(
+              event?.[OW_EVENT_KEYS.P_STAT]?.self_healing
+            );
+
             PLAYER_STATS[playerName].damage_taken += parseInt(
               event?.[OW_EVENT_KEYS.P_STAT]?.damage_taken
             );
@@ -492,6 +497,10 @@ const createDTO = (events: any) => {
 
               healing_dealt: event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt
                 ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt)
+                : 0,
+
+              self_healing: event?.[OW_EVENT_KEYS.P_STAT]?.self_healing
+                ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.self_healing)
                 : 0,
 
               damage_taken: event?.[OW_EVENT_KEYS.P_STAT]?.damage_taken
@@ -540,6 +549,10 @@ const createDTO = (events: any) => {
 
             healing_dealt: event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt
               ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.healing_dealt)
+              : 0,
+
+            self_healing: event?.[OW_EVENT_KEYS.P_STAT]?.self_healing
+              ? parseInt(event?.[OW_EVENT_KEYS.P_STAT]?.self_healing)
               : 0,
 
             damage_taken: event?.[OW_EVENT_KEYS.P_STAT]?.damage_taken
