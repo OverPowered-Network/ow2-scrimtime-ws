@@ -38,6 +38,8 @@ const OW_EVENT_KEYS = {
   K: "kill",
   M_END: "match_end",
   M_START: "match_start",
+  ECHO_DUP_S: "echo_duplicate_start",
+  ECHO_DUP_E: "echo_duplicate_end",
 };
 
 // Return only base file name without dir
@@ -174,6 +176,21 @@ const scrimCsvToObjArray = (str: string, delimiter = ",") => {
             hero: values[5],
             playerName: values[4],
           },
+        },
+      };
+      return el;
+    }
+
+    if (key === OW_EVENT_KEYS.ECHO_DUP_S) {
+      const el = {
+        [key]: {
+          timestamp: values[2],
+          team: values[3],
+          player: {
+            hero: values[5],
+            playerName: values[4],
+          },
+          dupHero: values[6],
         },
       };
       return el;
@@ -354,6 +371,28 @@ const createDTO = (events: any) => {
         if (PLAYERS[event?.[OW_EVENT_KEYS.ULT_END]?.player?.playerName]) {
           PLAYERS[
             event?.[OW_EVENT_KEYS.ULT_END]?.player?.playerName
+          ].ultimate_status = "ended";
+          DTO["players"] = PLAYERS;
+        }
+      }
+    }
+
+    if (event[OW_EVENT_KEYS.ECHO_DUP_S]) {
+      if (event?.[OW_EVENT_KEYS.ECHO_DUP_S]?.player?.playerName) {
+        if (PLAYERS[event?.[OW_EVENT_KEYS.ECHO_DUP_S]?.player?.playerName]) {
+          PLAYERS[
+            event?.[OW_EVENT_KEYS.ECHO_DUP_S]?.player?.playerName
+          ].ultimate_status = "started";
+          DTO["players"] = PLAYERS;
+        }
+      }
+    }
+
+    if (event[OW_EVENT_KEYS.ECHO_DUP_E]) {
+      if (event?.[OW_EVENT_KEYS.ECHO_DUP_E]?.player?.playerName) {
+        if (PLAYERS[event?.[OW_EVENT_KEYS.ECHO_DUP_E]?.player?.playerName]) {
+          PLAYERS[
+            event?.[OW_EVENT_KEYS.ECHO_DUP_E]?.player?.playerName
           ].ultimate_status = "ended";
           DTO["players"] = PLAYERS;
         }
