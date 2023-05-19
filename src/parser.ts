@@ -368,7 +368,7 @@ const createDTO = (events: any) => {
       for (const player of Object.keys(PLAYERS)) {
         if (PLAYERS[player]) {
           PLAYERS[player].hero = null;
-          PLAYERS[player].ultimate_status = false;
+          PLAYERS[player].ultimate_status = null;
         }
       }
       DTO["round_status"] = "round_end";
