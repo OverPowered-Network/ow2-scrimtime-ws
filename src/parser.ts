@@ -407,7 +407,7 @@ const createDTO = (events: any) => {
     if (event[OW_EVENT_KEYS.RND_E]) {
       for (const player of Object.keys(PLAYERS)) {
         if (PLAYERS[player]) {
-          PLAYERS[player].hero = null;
+          // PLAYERS[player].hero = null;
           PLAYERS[player].ultimate_status = null;
         }
       }
