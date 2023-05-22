@@ -3,6 +3,8 @@ WebSocket server for LogTime/ScrimTime OW2 Workshop.
 
 Watches the .csv file outputted and structures the data into JSON format.
 
+***Note: this code is quite inefficient and goes through the whole file. Feel free to make changes***
+
 
 ## <a id="prerequisites">Prerequisites</a>
 
