@@ -31,6 +31,7 @@ yarn start
 
 Connect to the WebSocket and send the message `START`
 The server will now look for the newest file in the directory and start watching for file changes.
+You can also send a `STOP` message to tell the server to stop watching the file
 
 Data structure will look like
 
