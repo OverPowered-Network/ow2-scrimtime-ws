@@ -25,6 +25,7 @@ Change this line to your correct Workshop directory path
 https://github.com/OverPowered-Network/ow2-scrimtime-ws/blob/f47e5a4726c5b099e52b8506109d65270121dba3/src/parser.ts#L15
 
 ```
+cd project/directory
 yarn start
 ```
 
